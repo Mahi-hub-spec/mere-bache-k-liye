@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday Madiha 💙</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Lato',sans-serif;background:#0a1628;overflow:hidden;height:100vh;width:100%}
+  .screen{display:none;height:100vh;width:100%;justify-content:center;align-items:center;flex-direction:column;gap:18px;padding:20px;position:absolute;top:0;left:0}
+  .screen.active{display:flex}
+  h1,h2{font-family:'Playfair Display',serif;color:#0d2b5e}
+  .btn{padding:12px 32px;border:none;border-radius:50px;background:linear-gradient(135deg,#2a4d8f,#0d2b5e);color:white;font-size:15px;cursor:pointer;font-family:'Lato',sans-serif;letter-spacing:0.5px;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 15px rgba(13,43,94,0.3)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(13,43,94,0.4)}
+  .btn:active{transform:scale(0.97)}
+  #canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+
+  /* TIMER */
+  #timer{background:transparent;z-index:1}
+  .timer-bg{position:fixed;inset:0;background:radial-gradient(ellipse at 30% 40%,#0f2352,#060e24);z-index:0}
+  .timer-stars{position:fixed;inset:0;z-index:0;overflow:hidden}
+  .star{position:absolute;background:white;border-radius:50%;animation:twinkle linear infinite}
+  @keyframes twinkle{0%,100%{opacity:0.1}50%{opacity:0.9}}
+  .timer-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:20px;padding:20px}
+  .timer-top-gif{width:110px;height:110px;object-fit:cover;border-radius:50%;border:3px solid rgba(90,140,255,0.4);box-shadow:0 0 30px rgba(90,140,255,0.25)}
+  .timer-label{font-family:'Playfair Display',serif;font-size:1.05em;color:#8fb4ff;letter-spacing:2px;text-align:center;font-style:italic}
+  .timer-name{font-family:'Playfair Display',serif;font-size:2.5em;color:white;text-align:center;line-height:1.1}
+  .timer-name span{color:#7fb3f5;font-style:italic}
+  .timer-grid{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .timer-box{background:rgba(255,255,255,0.06);border:1px solid rgba(90,140,255,0.25);border-radius:18px;padding:16px 18px;text-align:center;min-width:68px}
+  .timer-num{font-family:'Playfair Display',serif;font-size:2.6em;color:white;line-height:1;font-weight:700}
+  .timer-unit{font-size:0.68em;color:#8fb4ff;letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+  .timer-sub{color:#5b8dd9;font-size:0.82em;letter-spacing:1px;text-align:center}
+
+  /* FLASH */
+  .unlock-flash{position:fixed;inset:0;background:white;z-index:9998;pointer-events:none;opacity:0;transition:opacity 0.4s}
+
+  /* NON-TIMER SCREENS */
+  #start{background:radial-gradient(ellipse at 30% 70%,#d0d9ee,#eef1f7)}
+  #count{background:#eef1f7}
+  #photos{background:#eef1f7}
+  #timeline{background:linear-gradient(160deg,#eef1f7,#d0d9ee);overflow-y:auto}
+  #reasons{background:#eef1f7}
+  #letter{background:radial-gradient(ellipse at 70% 30%,#d0d9ee,#eef1f7)}
+  #quiz{background:linear-gradient(160deg,#eef1f7,#d0d9ee)}
+  #end{background:radial-gradient(ellipse at center,#d0d9ee,#eef1f7)}
+
+  /* START */
+  .start-name{font-family:'Playfair Display',serif;font-size:3.2em;color:#0d2b5e;text-align:center;line-height:1.1}
+  .start-name span{font-style:italic;color:#2a4d8f}
+
+  /* COUNTDOWN */
+  .count-num{font-family:'Playfair Display',serif;font-size:8em;color:#0d2b5e;line-height:1;animation:pulse 0.6s ease-in-out}
+  @keyframes pulse{0%{transform:scale(0.5);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+  .count-label{color:#2a4d8f;letter-spacing:3px;font-size:0.85em;text-transform:uppercase}
+
+  /* PHOTOS */
+  .slideshow-wrap{width:min(300px,82vw);height:min(355px,50vh);position:relative;border-radius:20px;overflow:hidden;box-shadow:0 20px 50px rgba(13,43,94,0.2)}
+  .slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease}
+  .slide.active{opacity:1}
+  .photo-gif{width:54px;height:54px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.8);position:absolute;bottom:10px;right:10px;z-index:2;box-shadow:0 2px 10px rgba(0,0,0,0.2)}
+  .slide-dot-wrap{display:flex;gap:6px;justify-content:center}
+  .sdot{width:8px;height:8px;border-radius:50%;background:#c0cce8;transition:background 0.3s,transform 0.3s}
+  .sdot.active{background:#0d2b5e;transform:scale(1.3)}
+
+  /* TIMELINE */
+  .timeline-scroll{max-width:480px;width:100%;max-height:68vh;overflow-y:auto;padding-right:4px}
+  .tl-item{display:flex;gap:16px;margin-bottom:28px;align-items:flex-start}
+  .tl-dot{min-width:12px;height:12px;border-radius:50%;background:#0d2b5e;margin-top:5px}
+  .tl-line{width:2px;background:linear-gradient(to bottom,#c0cce8,transparent);position:absolute;left:5px;top:17px;height:calc(100% - 17px)}
+  .tl-left{position:relative;display:flex;flex-direction:column;align-items:center;padding-bottom:4px}
+  .tl-text p{color:#555;font-size:0.9em;line-height:1.6}
+  .tl-text strong{color:#0d2b5e;font-size:0.95em}
+
+  /* REASONS */
+  .reasons-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:480px;width:100%;max-height:60vh;overflow-y:auto}
+  .reason-card{background:white;border-radius:16px;padding:14px 16px;box-shadow:0 4px 16px rgba(13,43,94,0.08);border-left:3px solid #2a4d8f}
+  .reason-num{font-size:11px;color:#2a4d8f;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+  .reason-text{font-size:0.88em;color:#444;line-height:1.5}
+
+  /* LETTER */
+  .letter-card{background:white;border-radius:20px;padding:28px;max-width:480px;width:100%;max-height:63vh;overflow-y:auto;box-shadow:0 16px 48px rgba(13,43,94,0.12)}
+  .letter-card h2{font-size:1.4em;margin-bottom:16px;color:#0d2b5e;font-family:'Playfair Display',serif}
+  #letterText{color:#555;font-size:0.92em;line-height:1.8;white-space:pre-wrap}
+  .cursor{display:inline-block;width:2px;height:1em;background:#2a4d8f;animation:blink 0.7s infinite;vertical-align:middle}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+  /* QUIZ */
+  .quiz-card{background:white;border-radius:20px;padding:28px;max-width:440px;width:100%;box-shadow:0 16px 48px rgba(13,43,94,0.12)}
+  .quiz-progress{display:flex;gap:6px;margin-bottom:20px}
+  .qprog{flex:1;height:4px;border-radius:2px;background:#c0cce8;transition:background 0.4s}
+  .qprog.done{background:#0d2b5e}
+  .quiz-q{font-family:'Playfair Display',serif;font-size:1.1em;color:#0d2b5e;margin-bottom:18px;line-height:1.4}
+  .quiz-input{width:100%;padding:11px 14px;border:1.5px solid #c0cce8;border-radius:12px;font-size:14px;outline:none;transition:border 0.2s;font-family:'Lato',sans-serif;color:#333}
+  .quiz-input:focus{border-color:#2a4d8f}
+  .quiz-feedback{font-size:0.85em;min-height:20px;margin-top:8px;font-weight:700}
+  .quiz-score{font-family:'Playfair Display',serif;font-size:2.2em;color:#0d2b5e;text-align:center}
+  .quiz-msg{color:#888;font-size:0.9em;text-align:center;margin-top:4px}
+
+  /* END */
+  .end-title{font-family:'Playfair Display',serif;font-size:2.2em;color:#0d2b5e;text-align:center;line-height:1.2}
+  .end-sub{color:#2a4d8f;font-size:0.95em;text-align:center;letter-spacing:1px}
+  .end-gif{width:155px;height:155px;object-fit:cover;border-radius:20px;box-shadow:0 10px 30px rgba(13,43,94,0.15);border:3px solid #c0cce8}
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+<div class="unlock-flash" id="flash"></div>
+<audio id="music" src="birthday.mp3" loop></audio>
+
+<!-- ══════════════ TIMER ══════════════ -->
+<div class="screen active" id="timer">
+  <div class="timer-bg"></div>
+  <div class="timer-stars" id="stars"></div>
+  <div class="timer-inner">
+    <!-- 💙 Replace this src with any cute GIF link you like -->
+    <img class="timer-top-gif"
+         src="https://media.giphy.com/media/26BRuo6sLetdllPAQ/giphy.gif"
+         alt="" onerror="this.style.display='none'">
+    <div class="timer-label">something beautiful is waiting for you...</div>
+    <div class="timer-name">for my <span>Madiha</span> 💙</div>
+    <div class="timer-grid">
+      <div class="timer-box"><div class="timer-num" id="tDays">00</div><div class="timer-unit">Days</div></div>
+      <div class="timer-box"><div class="timer-num" id="tHours">00</div><div class="timer-unit">Hours</div></div>
+      <div class="timer-box"><div class="timer-num" id="tMins">00</div><div class="timer-unit">Mins</div></div>
+      <div class="timer-box"><div class="timer-num" id="tSecs">00</div><div class="timer-unit">Secs</div></div>
+    </div>
+    <div class="timer-sub">unlocks on your birhtday mini 16 April 💙</div>
+  </div>
+</div>
+
+<!-- ══════════════ START ══════════════ -->
+<div class="screen" id="start">
+  <div style="color:#2a4d8f;font-size:0.95em;letter-spacing:1px;text-transform:uppercase;font-weight:300">a little something for</div>
+  <div class="start-name">Happy Birthday<br><span>Madiha</span> 🎂</div>
+  <p style="color:#aaa;font-size:0.88em;max-width:300px;text-align:center">Made with every bit of love I have for you</p>
+  <button class="btn" onclick="startShow()">Begin 💙</button>
+</div>
+
+<!-- ══════════════ COUNTDOWN ══════════════ -->
+<div class="screen" id="count">
+  <div class="count-label">get ready</div>
+  <div class="count-num" id="counter">3</div>
+</div>
+
+<!-- ══════════════ PHOTOS ══════════════ -->
+<div class="screen" id="photos">
+  <div style="color:#2a4d8f;font-size:0.95em;letter-spacing:1px;text-transform:uppercase;font-weight:300">us 📸</div>
+  <div class="slideshow-wrap">
+    <img class="slide" src="mahi.jpg">
+    <img class="slide" src="hands.jpg">
+    <img class="slide" src="MAHI WITH DATE.jpg">
+    <img class="slide" src="cute mahi.jpg">
+    <!-- 💙 cute gif in photo corner — replace src if you want -->
+    <img class="photo-gif"
+         src="https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif"
+         alt="" onerror="this.style.display='none'">
+  </div>
+  <div class="slide-dot-wrap" id="dots"></div>
+  <button class="btn" onclick="goTo('photos','timeline')">Our Story 💙</button>
+</div>
+
+<!-- ══════════════ TIMELINE ══════════════ -->
+<div class="screen" id="timeline">
+  <h1 style="font-size:1.8em">Our Journey 💖</h1>
+  <div class="timeline-scroll" id="tlScroll"></div>
+  <button class="btn" onclick="goTo('timeline','reasons')">Next 💙</button>
+</div>
+
+<!-- ══════════════ REASONS ══════════════ -->
+<div class="screen" id="reasons">
+  <h1 style="font-size:1.8em">Why I Love You 💙</h1>
+  <div class="reasons-grid" id="reasonsGrid"></div>
+  <button class="btn" onclick="goTo('reasons','letter')">Read My Letter 💙</button>
+</div>
+
+<!-- ══════════════ LETTER ══════════════ -->
+<div class="screen" id="letter">
+  <div class="letter-card">
+    <h2>A Letter For You 💌</h2>
+    <div id="letterText"></div><span class="cursor" id="cur"></span>
+  </div>
+  <button class="btn" id="letterBtn" style="display:none" onclick="goTo('letter','quiz')">A Little Game 💙</button>
+</div>
+
+<!-- ══════════════ QUIZ ══════════════ -->
+<div class="screen" id="quiz">
+  <h1 style="font-size:1.6em">How Well Do You Know Us? 💭</h1>
+  <div class="quiz-card">
+    <div class="quiz-progress" id="qprog"></div>
+    <div class="quiz-q" id="qtext"></div>
+    <input class="quiz-input" id="qinput" placeholder="Type your answer..." onkeydown="if(event.key==='Enter')checkAns()">
+    <div class="quiz-feedback" id="qfb"></div>
+    <button class="btn" id="qnext" style="display:none;margin-top:12px" onclick="nextQ()">Next 💙</button>
+  </div>
+</div>
+
+<!-- ══════════════ END ══════════════ -->
+<div class="screen" id="end">
+  <!-- 💙 Replace this src with any birthday celebration GIF link you like -->
+  <img class="end-gif"
+       src="https://media.giphy.com/media/g5R9dok94mrIvplmZd/giphy.gif"
+       alt="" onerror="this.style.display='none'">
+  <div class="end-title">🎆 Happy Birthday<br>Madiha 💙 🎆</div>
+  <div class="end-sub">3.5 years and counting ✨</div>
+  <p style="color:#aaa;font-size:0.85em;max-width:300px;text-align:center">Inshallah 2-3 birthdays baad mei tumhare sath ho ga 🥺</p>
+</div>
+
+<script>
+/* ════════════════════════════════
+   ✏️  EDIT THESE BEFORE SENDING
+════════════════════════════════ */
+
+const REASONS = [
+  "Reason 1 — write it here",
+  "Reason 2 — write it here",
+  "Reason 3 — write it here",
+  "Reason 4 — write it here",
+  "Reason 5 — write it here",
+  "Reason 6 — write it here",
+  "Reason 7 — write it here",
+  "Reason 8 — write it here",
+  "Reason 9 — write it here",
+  "Reason 10 — write it here"
+];
+
+const LETTER = `Mini,
+
+aj tumhari birthday hai aur mei chahta ho k tum feel karo kitna kuch hai jo mei express karna chahta ho lekin alfaaz kam par jaate hain.
+
+[Write your 300-400 word letter here 🥺]
+
+Tumhara,
+Minhaj 💙`;
+
+/* ════════════════════════════════
+   ⚙️  STORY & QUIZ
+════════════════════════════════ */
+
+const TIMELINE = [
+  {date:"The First Glance", text:"Jab pehli dafa dekha tou pao k neeche se zameen nikal gayi. Maine kabhi sir nahi uthaya tha — aur us din jo chehra dekha… socha kaash yeh meri ho."},
+  {date:"Tumne Text Kiya Pehle 🤭", text:"Phir na jaane kaise tum ne pehle text kiya. Mei roz us message ko dekhta rehta tha — cringe tha, but kia karo, I was already in love."},
+  {date:"Woh Pehla Din", text:"Himat kar k reply kiya aur subah se raat tak baatein hoti rahin. Din ke aakhir mein bas itna keh paya: 'mujhe ap pasand hain' — aur tum ne I love u pehle keh diya. 🥺"},
+  {date:"The Marriage Question 😭", text:"Aur phir pehle hi din tumne pooch liya — 'agar mei kaho k abhi shaadi kro?' Mei ruk k parh'ta raha. Hallucinating lagaa. But yeh tum the — aur that was our beginning."},
+  {date:"3.5 Saal Baad 💙", text:"Itni yaadein, itna pyar, itni masti — aur abhi aur baaki hai. Pictures bhi banenge, aur is baar khub masti bhi hogi. Mera bacha, meri jaan, sirf meri Madiha. 🥺"}
+];
+
+const QUIZ = [
+  {q:"Our first kiss kab thi? 🤭 (date batao 💋)", a:"15 nov 2022", hint:"november 2022 — date ab tum batao gi 🤭"},
+  {q:"Pehla nickname jo maine tumhe diya tha? 🥺", a:"paro", hint:"p sa shuru hota ha 😉"},
+  {q:"Pehli baar hum kahan mile the?", a:"tumhare ghar", hint:"her house / tumhare ghar"},
+  {q:"Pehli dafa mei tumhare ghar kab aaya? (date)", a:"9 oct 2022", hint:"october 2022 — aur kon si tarikh? 🤭"}
+];
+
+/* ════════════════════════════════
+   🔧  ENGINE
+════════════════════════════════ */
+
+// April 16 2026 midnight PKT (UTC+5) = April 15 19:00 UTC
+const BIRTHDAY = new Date('2026-04-15T19:00:00Z');
+
+let slideIdx = 0, qIdx = 0, score = 0;
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let hearts = [], fireworkParticles = [];
+let timerDone = false;
+
+/* resize */
+function resize(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resize(); window.addEventListener('resize', resize);
+
+/* stars */
+function buildStars(){
+  const wrap = document.getElementById('stars');
+  wrap.innerHTML = '';
+  for(let i = 0; i < 130; i++){
+    const s = document.createElement('div');
+    s.className = 'star';
+    const sz = Math.random() * 2.5 + 0.5;
+    s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-duration:${2+Math.random()*4}s;animation-delay:${Math.random()*4}s`;
+    wrap.appendChild(s);
+  }
+}
+buildStars();
+
+/* countdown timer */
+function pad(n){ return String(n).padStart(2,'0'); }
+function updateTimer(){
+  const diff = BIRTHDAY - new Date();
+  if(diff <= 0 && !timerDone){ timerDone = true; autoUnlock(); return; }
+  if(diff <= 0){ document.getElementById('tDays').textContent = document.getElementById('tHours').textContent = document.getElementById('tMins').textContent = document.getElementById('tSecs').textContent = '00'; return; }
+  document.getElementById('tDays').textContent  = pad(Math.floor(diff / 86400000));
+  document.getElementById('tHours').textContent = pad(Math.floor((diff % 86400000) / 3600000));
+  document.getElementById('tMins').textContent  = pad(Math.floor((diff % 3600000) / 60000));
+  document.getElementById('tSecs').textContent  = pad(Math.floor((diff % 60000) / 1000));
+}
+updateTimer();
+setInterval(updateTimer, 1000);
+
+function autoUnlock(){
+  const flash = document.getElementById('flash');
+  flash.style.opacity = '1';
+  setTimeout(()=>{ flash.style.opacity = '0'; goTo('timer','start'); startParticles(); }, 600);
+}
+
+/* screen nav */
+const screenEnter = { letter: startLetter, quiz: initQuiz };
+function goTo(a, b){
+  document.getElementById(a).classList.remove('active');
+  document.getElementById(b).classList.add('active');
+  if(screenEnter[b]) screenEnter[b]();
+}
+
+/* start show */
+function startShow(){
+  try{ document.getElementById('music').play(); }catch(e){}
+  goTo('start','count');
+  let n = 3, el = document.getElementById('counter');
+  el.textContent = n;
+  const t = setInterval(()=>{
+    n--;
+    if(n === 0){ clearInterval(t); goTo('count','photos'); initSlides(); }
+    else{ el.style.animation='none'; void el.offsetWidth; el.style.animation='pulse 0.6s ease-in-out'; el.textContent = n; }
+  }, 1000);
+}
+
+/* slides */
+function initSlides(){
+  const slides = [...document.getElementsByClassName('slide')];
+  const dotWrap = document.getElementById('dots');
+  dotWrap.innerHTML = '';
+  slides.forEach((_,i)=>{
+    const d = document.createElement('div');
+    d.className = 'sdot' + (i===0?' active':'');
+    dotWrap.appendChild(d);
+  });
+  slides[0].classList.add('active');
+  setInterval(()=>{
+    slides[slideIdx].classList.remove('active');
+    document.querySelectorAll('.sdot')[slideIdx].classList.remove('active');
+    slideIdx = (slideIdx+1) % slides.length;
+    slides[slideIdx].classList.add('active');
+    document.querySelectorAll('.sdot')[slideIdx].classList.add('active');
+  }, 2500);
+}
+
+/* timeline */
+function buildTimeline(){
+  const wrap = document.getElementById('tlScroll');
+  wrap.innerHTML = '';
+  TIMELINE.forEach(item=>{
+    const div = document.createElement('div');
+    div.className = 'tl-item';
+    div.innerHTML = `<div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-text"><strong>${item.date}</strong><p>${item.text}</p></div>`;
+    wrap.appendChild(div);
+  });
+}
+buildTimeline();
+
+/* reasons */
+function buildReasons(){
+  const grid = document.getElementById('reasonsGrid');
+  grid.innerHTML = '';
+  REASONS.forEach((r,i)=>{
+    const card = document.createElement('div');
+    card.className = 'reason-card';
+    card.innerHTML = `<div class="reason-num">Reason ${i+1}</div><div class="reason-text">${r}</div>`;
+    grid.appendChild(card);
+  });
+}
+buildReasons();
+
+/* letter */
+function startLetter(){
+  let i = 0, box = document.getElementById('letterText'), cur = document.getElementById('cur');
+  box.textContent = ''; cur.style.display = 'inline-block';
+  document.getElementById('letterBtn').style.display = 'none';
+  const t = ()=>{
+    if(i < LETTER.length){ box.textContent += LETTER[i++]; setTimeout(t, 18); }
+    else{ cur.style.display = 'none'; document.getElementById('letterBtn').style.display = 'block'; }
+  };
+  t();
+}
+
+/* quiz */
+function initQuiz(){
+  qIdx = 0; score = 0;
+  const prog = document.getElementById('qprog');
+  prog.innerHTML = '';
+  QUIZ.forEach(()=>{ const d=document.createElement('div'); d.className='qprog'; prog.appendChild(d); });
+  showQ();
+}
+function showQ(){
+  if(qIdx >= QUIZ.length){ showScore(); return; }
+  document.getElementById('qtext').textContent = QUIZ[qIdx].q;
+  document.getElementById('qinput').value = '';
+  document.getElementById('qfb').textContent = '';
+  document.getElementById('qfb').style.color = '';
+  document.getElementById('qnext').style.display = 'none';
+  document.getElementById('qinput').focus();
+}
+function checkAns(){
+  const inp = document.getElementById('qinput').value.trim().toLowerCase();
+  const fb  = document.getElementById('qfb');
+  const progs = document.querySelectorAll('.qprog');
+  if(inp.includes(QUIZ[qIdx].a.toLowerCase()) || QUIZ[qIdx].a.toLowerCase().includes(inp)){
+    fb.textContent = '✅ mere bache ko yaad tha 🥺';
+    fb.style.color = '#1a5276';
+    score++;
+    progs[qIdx].classList.add('done');
+  } else {
+    fb.textContent = `❌ mini 🥺 yaad kro: ${QUIZ[qIdx].hint}`;
+    fb.style.color = '#c0392b';
+    progs[qIdx].style.background = '#c0cce8';
+  }
+  document.getElementById('qnext').style.display = 'block';
+  document.getElementById('qinput').disabled = true;
+}
+function nextQ(){
+  qIdx++;
+  document.getElementById('qinput').disabled = false;
+  if(qIdx >= QUIZ.length) showScore();
+  else showQ();
+}
+function showScore(){
+  const qCard = document.querySelector('.quiz-card');
+  const msgs = [
+    'Yaad nahi na zyada mini ko? Koi nahi, I still love you 🥺 but tum gandi ho bhot',
+    'Gandi mini ho tum — but next time no excuse, is baar sirf maafi ha 😄',
+    'Wah! Mini sirf 2 mistake 🥺 chalo koi nahi 💙',
+    'Perfect score! Tumhara hi toh tha yeh sab 🥺💙'
+  ];
+  qCard.innerHTML = `<div class="quiz-score">${score} / ${QUIZ.length}</div><div class="quiz-msg">${msgs[Math.min(score,3)]}</div><br><button class="btn" onclick="finalEnd()">Continue 💙</button>`;
+}
+function finalEnd(){
+  goTo('quiz','end');
+  launchFireworks();
+}
+
+/* particles */
+function startParticles(){ spawnHearts(); animateAll(); }
+function spawnHearts(){
+  setInterval(()=>{
+    const blues = ['#2a4d8f','#0d2b5e','#1a5276','#5b8dd9','#7fb3f5','#c0cce8'];
+    hearts.push({
+      x: Math.random()*canvas.width, y: canvas.height+20,
+      vy: -(1.5+Math.random()*2), vx: (Math.random()-0.5)*0.8,
+      size: 12+Math.random()*18, opacity: 0.6+Math.random()*0.3,
+      rot: Math.random()*Math.PI*2,
+      color: blues[Math.floor(Math.random()*blues.length)]
+    });
+  }, 400);
+}
+function drawHeart(x,y,size,rot,alpha,color){
+  ctx.save(); ctx.globalAlpha=alpha; ctx.translate(x,y); ctx.rotate(rot);
+  const s=size/10;
+  ctx.beginPath();
+  ctx.moveTo(0,-s*3);
+  ctx.bezierCurveTo(s*3,-s*6,s*8,-s*2,0,s*3);
+  ctx.bezierCurveTo(-s*8,-s*2,-s*3,-s*6,0,-s*3);
+  ctx.fillStyle=color; ctx.fill(); ctx.restore();
+}
+function animateAll(){
+  requestAnimationFrame(animateAll);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  hearts = hearts.filter(h=>{
+    h.x+=h.vx; h.y+=h.vy; h.opacity-=0.003; h.rot+=0.01;
+    if(h.opacity<=0||h.y<-30) return false;
+    drawHeart(h.x,h.y,h.size,h.rot,h.opacity,h.color); return true;
+  });
+  fireworkParticles = fireworkParticles.filter(p=>{
+    p.x+=p.vx; p.y+=p.vy; p.vy+=0.06; p.opacity-=0.015; p.r*=0.97;
+    if(p.opacity<=0) return false;
+    ctx.save(); ctx.globalAlpha=p.opacity;
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=p.color; ctx.fill(); ctx.restore(); return true;
+  });
+}
+function launchFireworks(){
+  const colors=['#2a4d8f','#0d2b5e','#1a5276','#5b8dd9','#7fb3f5','#c0cce8','#ffffff','#a8c4e8'];
+  let count=0;
+  const burst=()=>{
+    const cx=0.2*canvas.width+Math.random()*0.6*canvas.width;
+    const cy=0.2*canvas.height+Math.random()*0.4*canvas.height;
+    for(let i=0;i<80;i++){
+      const angle=Math.random()*Math.PI*2, speed=1+Math.random()*6;
+      fireworkParticles.push({x:cx,y:cy,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed-2,r:2+Math.random()*4,color:colors[Math.floor(Math.random()*colors.length)],opacity:1});
+    }
+    count++; if(count<12) setTimeout(burst,350);
+  };
+  burst();
+}
+</script>
+</body>
+</html>
